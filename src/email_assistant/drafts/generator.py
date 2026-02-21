@@ -301,6 +301,7 @@ class DraftGenerator:
             body=html_body,
             thread_id=thread_id,
             content_type="html",
+            text_body=body,
         )
 
         draft_id = draft["id"]

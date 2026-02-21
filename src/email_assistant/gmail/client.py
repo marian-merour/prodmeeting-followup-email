@@ -3,6 +3,7 @@
 import base64
 import re
 from dataclasses import dataclass
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
@@ -155,6 +156,7 @@ class GmailClient:
         body: str,
         thread_id: Optional[str] = None,
         content_type: str = "plain",
+        text_body: Optional[str] = None,
     ) -> dict:
         """
         Create a draft email.
@@ -162,14 +164,22 @@ class GmailClient:
         Args:
             to: Recipient email address
             subject: Email subject
-            body: Email body
+            body: Email body (HTML when content_type="html")
             thread_id: Optional thread ID to reply in existing conversation
             content_type: MIME subtype — "plain" or "html"
+            text_body: Plain-text fallback when content_type="html"; triggers
+                       multipart/alternative so Gmail opens the draft in rich
+                       text mode instead of plain-text mode
 
         Returns:
             Created draft resource
         """
-        message = MIMEText(body, content_type)
+        if content_type == "html" and text_body is not None:
+            message = MIMEMultipart("alternative")
+            message.attach(MIMEText(text_body, "plain", "utf-8"))
+            message.attach(MIMEText(body, "html", "utf-8"))
+        else:
+            message = MIMEText(body, content_type, "utf-8")
         message["to"] = to
         message["subject"] = subject
 

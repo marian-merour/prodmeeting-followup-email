@@ -2,6 +2,7 @@
 
 import re
 from dataclasses import dataclass
+import markdown as md_lib
 from pathlib import Path
 from typing import Optional
 
@@ -292,11 +293,14 @@ class DraftGenerator:
         # Create draft
         subject = "Re: 21 Draw Course Production" if thread_id else "21 Draw Course Production - Follow Up"
 
+        html_body = md_lib.markdown(body)
+
         draft = self.gmail.create_draft(
             to=meeting_data.artist_email,
             subject=subject,
-            body=body,
+            body=html_body,
             thread_id=thread_id,
+            content_type="html",
         )
 
         draft_id = draft["id"]

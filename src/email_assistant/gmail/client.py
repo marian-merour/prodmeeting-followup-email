@@ -154,6 +154,7 @@ class GmailClient:
         subject: str,
         body: str,
         thread_id: Optional[str] = None,
+        content_type: str = "plain",
     ) -> dict:
         """
         Create a draft email.
@@ -161,13 +162,14 @@ class GmailClient:
         Args:
             to: Recipient email address
             subject: Email subject
-            body: Email body (plain text)
+            body: Email body
             thread_id: Optional thread ID to reply in existing conversation
+            content_type: MIME subtype — "plain" or "html"
 
         Returns:
             Created draft resource
         """
-        message = MIMEText(body)
+        message = MIMEText(body, content_type)
         message["to"] = to
         message["subject"] = subject
 

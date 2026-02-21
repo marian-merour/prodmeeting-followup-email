@@ -5,16 +5,16 @@ It was great chatting with you today and discussing the vision for your course o
 As promised, here are the links to the documents and folders we reviewed in the meeting for easy reference.
 
 **Course folder:** Here is where all the video, audio, and other course material can be uploaded to:
-> {{ artist_edit_link }}
+> <{{ artist_edit_link }}>
 
 **Course outline:** Where you can plan the course structure, goals, and lesson plan.
-> {{ course_outline_link }}
+> <{{ course_outline_link }}>
 
 **References from other instructors:** Helpful for inspiration in filming and planning
-> {{ references_link }}
+> <{{ references_link }}>
 
 **Technical Guidelines and Deliverables**
-> {{ tech_guidelines_link }}
+> <{{ tech_guidelines_link }}>
 
 **Next steps in Pre-Production:**
 {% if outline_delivery_date %}- **{{ outline_delivery_date }}** - Course outline doc to be completed

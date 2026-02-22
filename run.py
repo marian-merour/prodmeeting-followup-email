@@ -33,6 +33,11 @@ def main():
         action="store_true",
         help="Run continuously, checking at configured interval",
     )
+    parser.add_argument(
+        "--broad-search",
+        action="store_true",
+        help="Use broader Gmail search (subject:Marian) instead of subject:'21 Draw Course Production'",
+    )
 
     args = parser.parse_args()
 
@@ -58,12 +63,12 @@ def main():
     # Run once or as daemon
     if args.daemon:
         scheduler = SchedulerRunner(
-            check_function=lambda: assistant.check_and_process(dry_run=args.dry_run),
+            check_function=lambda: assistant.check_and_process(dry_run=args.dry_run, broad_search=args.broad_search),
             interval_seconds=settings.polling_interval_seconds,
         )
         scheduler.start()
     else:
-        results = assistant.check_and_process(dry_run=args.dry_run)
+        results = assistant.check_and_process(dry_run=args.dry_run, broad_search=args.broad_search)
 
         if args.dry_run:
             print(f"\nDry run complete. Found {len(results)} matching email(s).")

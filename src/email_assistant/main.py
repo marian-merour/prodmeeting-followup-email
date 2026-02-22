@@ -163,12 +163,13 @@ class EmailAssistant:
 
         self._slack = SlackNotifier(self.settings.slack_webhook_url)
 
-    def check_and_process(self, dry_run: bool = False) -> list[DraftResult]:
+    def check_and_process(self, dry_run: bool = False, broad_search: bool = False) -> list[DraftResult]:
         """
         Check for new Gemini notes emails and process them.
 
         Args:
             dry_run: If True, don't create drafts or mark as processed
+            broad_search: If True, use subject:Marian instead of subject:"21 Draw Course Production"
 
         Returns:
             List of draft results
@@ -178,7 +179,10 @@ class EmailAssistant:
         results = []
 
         # Search for Gemini notes emails
-        query = f'from:{self.settings.gemini_sender} subject:"21 Draw Course Production"'
+        if broad_search:
+            query = f'from:{self.settings.gemini_sender} subject:Marian'
+        else:
+            query = f'from:{self.settings.gemini_sender} subject:"21 Draw Course Production"'
         emails = self._gmail_client.search_emails(query, max_results=10)
 
         for email in emails:

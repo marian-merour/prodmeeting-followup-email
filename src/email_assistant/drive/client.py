@@ -215,9 +215,43 @@ class DriveClient:
 
         return None
 
+    def _list_subfolders(
+        self,
+        parent_id: str,
+        shared_drive_id: Optional[str] = None,
+    ) -> list["DriveItem"]:
+        """List all immediate subfolder children of a folder."""
+        params = {
+            "q": f"'{parent_id}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+            "fields": "files(id, name, mimeType, webViewLink)",
+            "pageSize": 20,
+        }
+        if shared_drive_id:
+            params["corpora"] = "drive"
+            params["driveId"] = shared_drive_id
+            params["includeItemsFromAllDrives"] = True
+            params["supportsAllDrives"] = True
+        else:
+            params["spaces"] = "drive"
+
+        results = self.service.files().list(**params).execute()
+        return [
+            DriveItem(
+                id=f["id"],
+                name=f["name"],
+                mime_type=f["mimeType"],
+                web_view_link=f.get("webViewLink"),
+            )
+            for f in results.get("files", [])
+        ]
+
     def find_artist_edit_folder(self, artist_name: str, base_path: str) -> Optional[DriveItem]:
         """
         Find the _artist_edit folder for an artist.
+
+        Searches directly inside the artist folder first, then one level
+        deeper (inside course subfolders) to handle structures like:
+          _artist_name/Course Title/_artist_edit/
 
         Args:
             artist_name: Artist name
@@ -235,16 +269,26 @@ class DriveClient:
         shared_drive_name = parts[0] if parts else None
         drive_id = self._get_shared_drive_id(shared_drive_name) if shared_drive_name else None
 
-        # Search for _artist_edit within artist folder
+        # Search for _artist_edit directly within artist folder
         items = self.search_by_name(
             name="_artist_edit",
             parent_id=artist_folder.id,
             mime_type="application/vnd.google-apps.folder",
             shared_drive_id=drive_id,
         )
-
         if items:
             return items[0]
+
+        # Not found directly — check one level deeper (course subfolders)
+        for subfolder in self._list_subfolders(artist_folder.id, drive_id):
+            items = self.search_by_name(
+                name="_artist_edit",
+                parent_id=subfolder.id,
+                mime_type="application/vnd.google-apps.folder",
+                shared_drive_id=drive_id,
+            )
+            if items:
+                return items[0]
 
         return None
 
@@ -273,15 +317,18 @@ class DriveClient:
         # Folders to search in (artist root + common subfolders)
         folders_to_search = [artist_folder.id]
 
-        # Also search in _artist_edit subfolder if it exists
-        artist_edit_items = self.search_by_name(
-            name="_artist_edit",
-            parent_id=artist_folder.id,
-            mime_type="application/vnd.google-apps.folder",
-            shared_drive_id=drive_id,
-        )
-        if artist_edit_items:
-            folders_to_search.append(artist_edit_items[0].id)
+        # Also search in _artist_edit and course subfolders (one level deep)
+        for subfolder in self._list_subfolders(artist_folder.id, drive_id):
+            folders_to_search.append(subfolder.id)
+            # And _artist_edit inside each course subfolder
+            artist_edit_items = self.search_by_name(
+                name="_artist_edit",
+                parent_id=subfolder.id,
+                mime_type="application/vnd.google-apps.folder",
+                shared_drive_id=drive_id,
+            )
+            if artist_edit_items:
+                folders_to_search.append(artist_edit_items[0].id)
 
         # Search for Course Outline doc in each folder
         for folder_id in folders_to_search:

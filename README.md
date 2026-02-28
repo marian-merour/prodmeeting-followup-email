@@ -227,7 +227,7 @@ The email body is generated from `config/templates/artist_followup.md`. It is a 
 Hi {{ artist_first_name }},
 
 It was great chatting with you today and discussing the vision for your course on
-{{ course_subject }}. Very excited about this topic! ...
+{{ course_subject }}. Very excited about this topic!    ...
 
 **Course folder:** Here is where all the video, audio, and other course material
 can be uploaded to:

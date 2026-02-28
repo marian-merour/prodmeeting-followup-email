@@ -1,6 +1,7 @@
-        Hi {{ artist_first_name }},
+Hi {{ artist_first_name }},
 
 It was great chatting with you today and discussing the vision for your course on {{ course_subject }}. Very excited about this topic! I am sure our community will love it too.
+
 
 As promised, here are the links to the documents and folders we reviewed in the meeting for easy reference.
 
@@ -16,12 +17,14 @@ As promised, here are the links to the documents and folders we reviewed in the 
 **Technical Guidelines and Deliverables**
 > {{ tech_guidelines_link }}
 
-**Deadline Dates:**
-{% if outline_delivery_date %}- {{ outline_delivery_date }} - Course outline doc to be completed
-{% endif %}{% if demo_video_date %}- {{ demo_video_date }} - Demo videos submitted for every shot
-{% endif %}{% if artist_bio_date %}- {{ artist_bio_date }} - Send artist bio material 
-{% endif %}{% if contract_timeline %}- Contract timeline: {{ contract_timeline }}
-{% endif %}{% if checkin_schedule %}- Check-ins: {{ checkin_schedule }}
+
+**Next steps in Pre-Production:**
+{% if outline_delivery_date %}- **{{ outline_delivery_date }}** - Course outline doc to be completed
+{% endif %}{% if demo_video_date %}- **{{ demo_video_date }}** - Demo videos submitted for every shot
+{% endif %}{% if artist_bio_date %}- **{{ artist_bio_date }}** - Send artist bio material 
+{% endif %}{% if course_lessons_date %}- **{{ course_lessons_date }}** - Deliver all course lessons
+{% endif %}{% if contract_timeline %}- **{{ contract_timeline }}** - Contract timeline
+{% endif %}{% if checkin_schedule %}- **Monday Weekly:** Marian will check in by email to get status/progress updates.
 {% endif %}{% for item in action_items %}- {{ item }}
 {% endfor %}
 

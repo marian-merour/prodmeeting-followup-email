@@ -267,6 +267,7 @@ class DraftGenerator:
             "tech_guidelines_link": TECH_GUIDELINES_LINK,
             "outline_delivery_date": meeting_data.outline_delivery_date,
             "demo_video_date": meeting_data.demo_video_date,
+            "course_lessons_date": meeting_data.course_lessons_date,
             "contract_timeline": meeting_data.contract_timeline,
             "checkin_schedule": meeting_data.checkin_schedule,
             "action_items": meeting_data.action_items,

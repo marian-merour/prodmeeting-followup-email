@@ -16,6 +16,7 @@ class MeetingData:
     course_subject: str
     outline_delivery_date: Optional[str] = None
     demo_video_date: Optional[str] = None
+    course_lessons_date: Optional[str] = None
     contract_timeline: Optional[str] = None
     checkin_schedule: Optional[str] = None
     action_items: list[str] = field(default_factory=list)
@@ -32,6 +33,7 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
   "course_subject": "string - topic/subject of the course being produced",
   "outline_delivery_date": "string or null - when course outline should be delivered",
   "demo_video_date": "string or null - when demo videos are due",
+  "course_lessons_date": "string or null - when all course lessons should be delivered",
   "contract_timeline": "string or null - start and end dates from contract",
   "checkin_schedule": "string or null - how often check-ins will happen",
   "action_items": ["array of strings - specific tasks/next steps mentioned"]
@@ -108,6 +110,7 @@ class NotesParser:
             course_subject=data.get("course_subject", ""),
             outline_delivery_date=data.get("outline_delivery_date"),
             demo_video_date=data.get("demo_video_date"),
+            course_lessons_date=data.get("course_lessons_date"),
             contract_timeline=data.get("contract_timeline"),
             checkin_schedule=data.get("checkin_schedule"),
             action_items=data.get("action_items", []),

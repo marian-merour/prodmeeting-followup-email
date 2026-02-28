@@ -8,6 +8,7 @@ from .config import Settings
 from .gmail.auth import GmailAuth
 from .gmail.client import GmailClient, Email
 from .drive.client import DriveClient
+from .sheets.client import SheetsClient
 from .parser.notes_parser import NotesParser, MeetingData
 from .drafts.generator import DraftGenerator, DraftResult
 from .notifications.slack import SlackNotifier
@@ -26,6 +27,7 @@ class EmailAssistant:
         self.settings = settings
         self._gmail_client: Optional[GmailClient] = None
         self._drive_client: Optional[DriveClient] = None
+        self._sheets_client: Optional[SheetsClient] = None
         self._notes_parser: Optional[NotesParser] = None
         self._draft_generator: Optional[DraftGenerator] = None
         self._slack: Optional[SlackNotifier] = None
@@ -151,12 +153,16 @@ class EmailAssistant:
 
         self._gmail_client = GmailClient(credentials)
         self._drive_client = DriveClient(credentials)
+        self._sheets_client = SheetsClient(credentials)
         self._notes_parser = NotesParser(self.settings.anthropic_api_key)
 
         templates_dir = Path(__file__).parent.parent.parent / "config" / "templates"
         self._draft_generator = DraftGenerator(
             gmail_client=self._gmail_client,
             drive_client=self._drive_client,
+            sheets_client=self._sheets_client,
+            spreadsheet_id=self.settings.sheets_spreadsheet_id,
+            sheets_gid=self.settings.sheets_gid,
             templates_dir=templates_dir,
             drive_base_path=self.settings.drive_base_folder,
         )

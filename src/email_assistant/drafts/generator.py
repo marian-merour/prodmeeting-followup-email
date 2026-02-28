@@ -8,6 +8,7 @@ from typing import Optional
 
 from ..gmail.client import GmailClient
 from ..drive.client import DriveClient
+from ..sheets.client import SheetsClient
 from ..parser.notes_parser import MeetingData
 from .templates import TemplateLoader
 
@@ -39,6 +40,9 @@ class DraftGenerator:
         drive_client: DriveClient,
         templates_dir: Path,
         drive_base_path: str,
+        sheets_client: Optional[SheetsClient] = None,
+        spreadsheet_id: Optional[str] = None,
+        sheets_gid: int = 0,
     ):
         """
         Initialize draft generator.
@@ -48,9 +52,15 @@ class DraftGenerator:
             drive_client: Google Drive API client
             templates_dir: Path to email templates directory
             drive_base_path: Base path in Drive for artist folders
+            sheets_client: Google Sheets API client (optional)
+            spreadsheet_id: Spreadsheet ID for contract data (optional)
+            sheets_gid: Sheet tab gid for contract data
         """
         self.gmail = gmail_client
         self.drive = drive_client
+        self.sheets_client = sheets_client
+        self.spreadsheet_id = spreadsheet_id
+        self.sheets_gid = sheets_gid
         self.templates = TemplateLoader(templates_dir)
         self.drive_base_path = drive_base_path
 
@@ -249,6 +259,23 @@ class DraftGenerator:
         if name_used != meeting_data.artist_first_name:
             print(f"  Found folders using name: '{name_used}'")
 
+        # Prefer contract timeline from Google Sheet over Claude-parsed value
+        sheet_timeline = None
+        if self.sheets_client and self.spreadsheet_id:
+            try:
+                sheet_timeline = self.sheets_client.get_contract_timeline(
+                    self.spreadsheet_id,
+                    self.sheets_gid,
+                    meeting_data.artist_first_name,
+                )
+                if sheet_timeline:
+                    print(f"  Contract timeline from Sheet: {sheet_timeline}")
+                else:
+                    print(f"  Artist not found in Sheet, falling back to parsed value")
+            except Exception as e:
+                print(f"  Sheet lookup failed: {e}")
+        contract_timeline = sheet_timeline or meeting_data.contract_timeline
+
         # Build template context
         context = {
             "artist_first_name": meeting_data.artist_first_name,
@@ -268,7 +295,7 @@ class DraftGenerator:
             "outline_delivery_date": meeting_data.outline_delivery_date,
             "demo_video_date": meeting_data.demo_video_date,
             "course_lessons_date": meeting_data.course_lessons_date,
-            "contract_timeline": meeting_data.contract_timeline,
+            "contract_timeline": contract_timeline,
             "checkin_schedule": meeting_data.checkin_schedule,
             "action_items": meeting_data.action_items,
         }

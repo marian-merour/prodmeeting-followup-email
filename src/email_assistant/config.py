@@ -66,6 +66,16 @@ class Settings(BaseSettings):
         description="Gmail label to mark processed emails",
     )
 
+    # Google Sheets (optional - artist contract data)
+    sheets_spreadsheet_id: str = Field(
+        default="1y_QVsdsfsDdTW7MGW2FZ2VBxN74QuT8ciwexJlHK6YY",
+        description="Google Sheets spreadsheet ID for artist contract data",
+    )
+    sheets_gid: int = Field(
+        default=1782592792,
+        description="Sheet tab gid containing artist contract data",
+    )
+
 
 def get_settings() -> Settings:
     """Get application settings singleton."""

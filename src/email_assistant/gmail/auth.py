@@ -14,6 +14,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.compose",  # Create drafts
     "https://www.googleapis.com/auth/gmail.modify",   # Add labels
     "https://www.googleapis.com/auth/drive.readonly", # Read Drive for folder lookups
+    "https://www.googleapis.com/auth/spreadsheets.readonly",  # Read Sheets for contract data
 ]
 
 

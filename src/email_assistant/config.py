@@ -50,7 +50,7 @@ class Settings(BaseSettings):
         description="Email address of Gemini meeting notes sender",
     )
     subject_pattern: str = Field(
-        default=r'Notes: [\u201c""](?=[^\u201d""]*Marian)(?![^\u201d""]*(?:Darko|Course prod|Beers and Brags|Noras|\bJP\b|Renco|David|Stefan))([^\u201d""]+)[\u201d""]',
+        default=r'Notes: [\u201c""](?=[^\u201d""]*Marian)(?![^\u201d""]*(?:Darko|Course prod|Beers and Brags|Noras|\bJP\b|Renco|David|Stefan|Maisie))([^\u201d""]+)[\u201d""]',
         description="Regex pattern to match Gemini notes subject lines",
     )
 

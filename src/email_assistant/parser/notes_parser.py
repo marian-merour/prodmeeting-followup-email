@@ -1,10 +1,20 @@
 """Claude-based meeting notes parser."""
 
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 
 import anthropic
+
+_DAYS = r'(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)'
+
+
+def _strip_day_of_week(date_str: Optional[str]) -> Optional[str]:
+    """Remove a leading day-of-week prefix, e.g. 'Thursday, March 5th' -> 'March 5th'."""
+    if not date_str:
+        return date_str
+    return re.sub(rf'^{_DAYS},\s*', '', date_str, flags=re.IGNORECASE)
 
 
 @dataclass
@@ -16,6 +26,7 @@ class MeetingData:
     course_subject: str
     outline_delivery_date: Optional[str] = None
     demo_video_date: Optional[str] = None
+    artist_bio_date: Optional[str] = None
     course_lessons_date: Optional[str] = None
     contract_timeline: Optional[str] = None
     checkin_schedule: Optional[str] = None
@@ -33,6 +44,7 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
   "course_subject": "string - topic/subject of the course being produced",
   "outline_delivery_date": "string or null - when course outline should be delivered",
   "demo_video_date": "string or null - when demo videos are due",
+  "artist_bio_date": "string or null - when the artist should send their bio and profile materials",
   "course_lessons_date": "string or null - when all course lessons should be delivered",
   "contract_timeline": "string or null - start and end dates from contract",
   "checkin_schedule": "string or null - how often check-ins will happen",
@@ -42,7 +54,7 @@ Return ONLY valid JSON with this exact structure (no markdown, no explanation):
 Important:
 - For artist_email, look for email addresses mentioned in the notes, especially in attendee lists or contact information
 - For action_items, include specific deliverables and deadlines mentioned
-- Keep dates in their original format as mentioned in the notes
+- Keep dates in their original format as mentioned in the notes, but omit the day of the week (e.g. use "March 5th" not "Thursday, March 5th")
 - If the artist email is not explicitly stated, look for it in the meeting participants or attendee list
 
 Meeting notes to parse:
@@ -108,9 +120,10 @@ class NotesParser:
             artist_first_name=data.get("artist_first_name", artist_name_hint or ""),
             artist_email=data.get("artist_email", ""),
             course_subject=data.get("course_subject", ""),
-            outline_delivery_date=data.get("outline_delivery_date"),
-            demo_video_date=data.get("demo_video_date"),
-            course_lessons_date=data.get("course_lessons_date"),
+            outline_delivery_date=_strip_day_of_week(data.get("outline_delivery_date")),
+            demo_video_date=_strip_day_of_week(data.get("demo_video_date")),
+            artist_bio_date=_strip_day_of_week(data.get("artist_bio_date")),
+            course_lessons_date=_strip_day_of_week(data.get("course_lessons_date")),
             contract_timeline=data.get("contract_timeline"),
             checkin_schedule=data.get("checkin_schedule"),
             action_items=data.get("action_items", []),

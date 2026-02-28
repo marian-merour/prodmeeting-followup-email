@@ -1,5 +1,6 @@
 """Google Sheets client for reading artist contract data."""
 
+from datetime import datetime
 from typing import Optional
 
 from googleapiclient.discovery import build
@@ -10,6 +11,18 @@ class SheetsClient:
 
     def __init__(self, credentials):
         self.service = build("sheets", "v4", credentials=credentials)
+
+    def _format_date(self, date_str: str) -> str:
+        """Reformat a date string to 'Mon D' (e.g. 'Feb 23')."""
+        if not date_str:
+            return date_str
+        for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y"):
+            try:
+                dt = datetime.strptime(date_str, fmt)
+                return f"{dt.strftime('%b')} {dt.day}"
+            except ValueError:
+                continue
+        return date_str
 
     def _get_sheet_name(self, spreadsheet_id: str, gid: int) -> Optional[str]:
         """Find the tab name for a given gid."""
@@ -65,5 +78,5 @@ class SheetsClient:
         end = get_cell(end_row)
 
         if start and end:
-            return f"{start} – {end}"
-        return start or end or None
+            return f"{self._format_date(start)} - {self._format_date(end)}"
+        return self._format_date(start) or self._format_date(end) or None
